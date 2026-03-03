@@ -13,7 +13,7 @@ export const LIST_AGENDA_BUTTON = `
 				background-color: #00529f;
 				color: white;
 				text-decoration: none;
-				font-weight: 600;
+				font-weight: bold;
 				font-size: 17px;
 				text-align: center;
 				border-radius: 8px;
@@ -49,14 +49,38 @@ export const YOUR_STATS = `
 			<li style="margin-bottom: 10px;">You have <strong>1</strong> quiz due this week.</li>
 			<li style="margin-bottom: 10px;">You have <strong>2</strong> discussion posts due this week.</li>
 		</ul>
-		<p style="margin-top: 10px; font-weight: 600; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
+		<p style="margin-top: 10px; font-weight: bold; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
 	</div>
 `;
 
+function getWeekDateRange() {
+	const curr = new Date(); // get current date
+	const first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
+	const last = first + 6; // last day is the first day + 6
+
+	const firstDate = new Date(curr);
+	firstDate.setDate(first);
+
+	const lastDate = new Date(curr);
+	lastDate.setDate(last);
+
+	const options: Intl.DateTimeFormatOptions = {
+		month: "2-digit",
+		day: "2-digit"
+	};
+
+	const firstday = firstDate.toLocaleDateString(undefined, options);
+	const lastday = lastDate.toLocaleDateString(undefined, options);
+
+	return `${firstday} - ${lastday} ${curr.getFullYear()}`;
+}
+
 export const WEEK = `
+	<div style="margin: 3% 0 3% 0; text-align: center;">
+		<h2 style="font-weight: bold;">Week of ${getWeekDateRange()}</h2>
+	</div>
 	<table style="
 		width: 100%;
-		margin-top: 5%;
 		border: 2px solid black;
 		border-collapse: collapse;
 		table-layout: fixed;
