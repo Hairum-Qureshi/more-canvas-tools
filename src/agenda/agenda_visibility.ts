@@ -33,6 +33,11 @@ export function injectShowAgendaButton(
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
 
+		if ($("#agendaBtn button").text() === "View Dashboard") {
+			window.location.reload();
+			return;
+		}
+
 		$(
 			".css-1uzyfgj-view-flexItem span.css-18ygipl-view-heading span.hidden-phone"
 		).replaceWith("Agenda For This Week");
@@ -41,7 +46,7 @@ export function injectShowAgendaButton(
 
 		// TODO - need to revert the changes by changing the text content to 'Dashboard' and re-rendering the user's course cards
 
-		console.log(">", $("#agendaBtn button"));
+		$("#agendaBtn button").text("View Dashboard");
 
 		return false;
 	});
