@@ -121,7 +121,6 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
 		},
 		action: e => {
 			$(e.sidebar).empty();
-
 			injectShowAgendaButton(e.sidebar, e.courseCardContainer);
 		},
 		deferUntil: LOAD
