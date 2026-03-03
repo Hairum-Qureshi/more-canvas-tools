@@ -12,13 +12,13 @@ export const LIST_AGENDA_BUTTON = `
 			style="
 				width: 95%;
 				padding: 12px 16px;
-				background-color: #4f46e5;
+				background-color: #00529f;
 				color: white;
 				text-decoration: none;
 				font-weight: 600;
 				text-align: center;
 				border-radius: 8px;
-				border: 1px solid #4338ca;
+				border: 1px solid rgba(18, 7, 145, 1);
 			">
 			View your weekly agenda
 			</a>
@@ -26,11 +26,22 @@ export const LIST_AGENDA_BUTTON = `
 	</li>
 `;
 
-export function injectShowAgendaButton(target: HTMLElement) {
-	$(target).append(LIST_AGENDA_BUTTON);
+export function injectShowAgendaButton(
+	sidebarTarget: HTMLElement
+	// dashboardTarget: HTMLElement
+): void {
+	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
-		alert("PRESSED!");
+
+		$(
+			".css-1uzyfgj-view-flexItem span.css-18ygipl-view-heading span.hidden-phone"
+		).replaceWith("Agenda For This Week");
+
+		// $(dashboardTarget)
+		// 	.addClass("ic-Dashboard-header__layout")
+		// 	.addClass("css-18ygipl-view-heading")
+		// 	.text("Agenda");
 		return false;
 	});
 }
