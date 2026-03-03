@@ -117,13 +117,12 @@ const OPERATIONS: ReadonlyArray<Operation<any>> = [
 		condition: () => isOnDashboard,
 		dependencies: {
 			sidebar: "#right-side", // parent div for the sidebar
-			dashboard: "#dashboard" // parent div for the dashboard content
+			courseCardContainer: ".ic-DashboardCard__box__container" // parent div for the courseCardContainer content
 		},
 		action: e => {
 			$(e.sidebar).empty();
-			$(e.sidebar).addClass(e.sidebar.className).append("<h2>AGENDA</h2>");
 
-			injectShowAgendaButton(e.sidebar);
+			injectShowAgendaButton(e.sidebar, e.courseCardContainer);
 		},
 		deferUntil: LOAD
 	})
