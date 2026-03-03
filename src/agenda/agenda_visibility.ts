@@ -149,6 +149,60 @@ export const WEEK = `
 	</table>
 `;
 
+async function getUserToDos() {
+	const endpointURL = "https://udel.instructure.com/api/v1/users/self/todo";
+	const data = await fetch(endpointURL)
+		.then(res => {
+			if (!res.ok) {
+				throw new Error(`HTTP error: ${res.status}`);
+			}
+			return res.json();
+		})
+		.catch(err => {
+			console.error("Fetch failed:", err);
+			return null;
+		});
+
+	const importantData: {
+		url: string;
+		courseName: string;
+		dayDue: string;
+		timeDue: string;
+		assignmentTitle: string;
+	}[] = [];
+
+	if (!data) return;
+
+	const weekDays: readonly string[] = [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday"
+	];
+
+	data.forEach((todo: any) => {
+		const obj = {
+			url: todo.html_url,
+			courseName: todo.context_name,
+			dayDue: weekDays[new Date(todo.assignment.due_at).getDay()],
+			timeDue: new Date(todo.assignment.due_at).toLocaleTimeString([], {
+				hour: "2-digit",
+				minute: "2-digit"
+			}),
+			assignmentTitle: todo.assignment.name.split(" ").splice(1).join(" ")
+		};
+
+		importantData.push(obj);
+	});
+
+	console.log(importantData);
+}
+
+getUserToDos();
+
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
 	courseCardContainer: HTMLElement
@@ -176,7 +230,7 @@ export function injectShowAgendaButton(
 
 		$(courseCardContainer).empty();
 
-		const ASSIGNMENTS = []; // placeholder to toggle between empty and non-empty assignment list for testing purposes
+		const ASSIGNMENTS = [""]; // placeholder to toggle between empty and non-empty assignment list for testing purposes
 		!ASSIGNMENTS.length
 			? $(courseCardContainer).append(
 					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
