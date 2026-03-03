@@ -5,9 +5,7 @@ export const LIST_AGENDA_BUTTON = `
 		list-style: none;
 		margin-top: 30px;
 	">
-		<div>
-			<a 
-			href="#" 
+		<button 
 			title="View Agenda Button"
 			style="
 				width: 95%;
@@ -16,13 +14,14 @@ export const LIST_AGENDA_BUTTON = `
 				color: white;
 				text-decoration: none;
 				font-weight: 600;
+				font-size: 17px;
 				text-align: center;
 				border-radius: 8px;
+				margin-top: -40px;
 				border: 1px solid rgba(18, 7, 145, 1);
 			">
 			View your weekly agenda
-			</a>
-		</div>
+		</button>
 	</li>
 `;
 
@@ -40,10 +39,10 @@ export function injectShowAgendaButton(
 
 		$(courseCardContainer).empty();
 
-		// $(dashboardTarget)
-		// 	.addClass("ic-Dashboard-header__layout")
-		// 	.addClass("css-18ygipl-view-heading")
-		// 	.text("Agenda");
+		// TODO - need to revert the changes by changing the text content to 'Dashboard' and re-rendering the user's course cards
+
+		console.log(">", $("#agendaBtn button"));
+
 		return false;
 	});
 }
