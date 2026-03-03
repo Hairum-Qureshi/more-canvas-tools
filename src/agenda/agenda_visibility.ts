@@ -25,6 +25,22 @@ export const LIST_AGENDA_BUTTON = `
 	</li>
 `;
 
+const ASSIGNMENT_BLOCK = `
+	<div style="
+		border: 1px solid black;
+		padding: 10px;
+		border-radius: 5px;
+		background-color: #00529f;
+		color: white;
+		word-wrap: break-word;
+		font-size: 13px;
+	">
+		<h4 style="margin: 0;">Assignment Name</h4>
+		<p style="margin: 5px 0;">Course Name</p>
+		<p style="margin: 0;">Due Date: MM/DD/YYYY</p>
+	</div>	
+`;
+
 export const WEEK = `
 	<table style="
 		width: 100%;
@@ -63,13 +79,35 @@ export const WEEK = `
 
 		<tbody style="text-align: center;">
 			<tr>
-				<td style="border: 1px solid black; padding: 15px;">Data 1</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 2</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 3</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 4</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 5</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 6</td>
-				<td style="border: 1px solid black; padding: 15px;">Data 7</td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "sundayBlock"></td>
+				<td style=
+					"border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: 
+					top;" id = "mondayBlock"></td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "tuesdayBlock"></td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "wednesdayBlock"></td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "thursdayBlock"></td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "fridayBlock"></td>
+				<td style="
+					border: 1px solid black; 
+					padding: 10px; 
+					vertical-align: top;" id = "saturdayBlock"></td>
 			</tr>
 		</tbody>
 	</table>
@@ -100,6 +138,7 @@ export function injectShowAgendaButton(
 
 		$(courseCardContainer).empty();
 		$(courseCardContainer).append(WEEK);
+		$("#sundayBlock").append(ASSIGNMENT_BLOCK);
 
 		$("#agendaBtn button").text("View Dashboard");
 
