@@ -25,6 +25,56 @@ export const LIST_AGENDA_BUTTON = `
 	</li>
 `;
 
+export const WEEK = `
+	<table style="
+		width: 100%;
+		margin-top: 5%;
+		border: 2px solid black;
+		border-collapse: collapse;
+		table-layout: fixed;
+		font-family: Arial, sans-serif;
+		margin-left: 2%;
+	">
+		<thead>
+			<tr style="background-color: #f2f2f2;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Sunday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Monday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Tuesday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Wednesday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Thursday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Friday</h3>
+				</th>
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+					<h3 style="margin: 0;">Saturday</h3>
+				</th>
+			</tr>
+		</thead>
+
+		<tbody style="text-align: center;">
+			<tr>
+				<td style="border: 1px solid black; padding: 15px;">Data 1</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 2</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 3</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 4</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 5</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 6</td>
+				<td style="border: 1px solid black; padding: 15px;">Data 7</td>
+			</tr>
+		</tbody>
+	</table>
+`;
+
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
 	courseCardContainer: HTMLElement
@@ -49,6 +99,7 @@ export function injectShowAgendaButton(
 		dashboardHeader.text("Agenda For This Week");
 
 		$(courseCardContainer).empty();
+		$(courseCardContainer).append(WEEK);
 
 		$("#agendaBtn button").text("View Dashboard");
 
