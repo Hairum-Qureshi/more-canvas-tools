@@ -175,9 +175,15 @@ export function injectShowAgendaButton(
 		dashboardHeader.text("Agenda For This Week");
 
 		$(courseCardContainer).empty();
-		$(courseCardContainer).append(WEEK);
-		$("#sundayBlock").append(ASSIGNMENT_BLOCK);
 
+		const ASSIGNMENTS = []; // placeholder to toggle between empty and non-empty assignment list for testing purposes
+		!ASSIGNMENTS.length
+			? $(courseCardContainer).append(
+					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
+				) // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
+			: $(courseCardContainer).append(WEEK);
+
+		$("#sundayBlock").append(ASSIGNMENT_BLOCK);
 		$("#agendaBtn button").text("View Dashboard");
 
 		return false;
