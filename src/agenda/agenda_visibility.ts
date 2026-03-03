@@ -29,22 +29,26 @@ export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
 	courseCardContainer: HTMLElement
 ): void {
+	const dashboardCourseCardOriginalHTML = $(courseCardContainer).html();
+
+	const dashboardHeader = $(
+		".css-1uzyfgj-view-flexItem span.css-18ygipl-view-heading span.hidden-phone"
+	);
+
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
 
 		if ($("#agendaBtn button").text() === "View Dashboard") {
-			window.location.reload();
+			$(courseCardContainer).html(dashboardCourseCardOriginalHTML);
+			$("#agendaBtn button").text("View your weekly agenda");
+			dashboardHeader.text("Dashboard");
 			return;
 		}
 
-		$(
-			".css-1uzyfgj-view-flexItem span.css-18ygipl-view-heading span.hidden-phone"
-		).replaceWith("Agenda For This Week");
+		dashboardHeader.text("Agenda For This Week");
 
 		$(courseCardContainer).empty();
-
-		// TODO - need to revert the changes by changing the text content to 'Dashboard' and re-rendering the user's course cards
 
 		$("#agendaBtn button").text("View Dashboard");
 
