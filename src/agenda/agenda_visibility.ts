@@ -27,8 +27,8 @@ export const LIST_AGENDA_BUTTON = `
 `;
 
 export function injectShowAgendaButton(
-	sidebarTarget: HTMLElement
-	// dashboardTarget: HTMLElement
+	sidebarTarget: HTMLElement,
+	courseCardContainer: HTMLElement
 ): void {
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
@@ -37,6 +37,8 @@ export function injectShowAgendaButton(
 		$(
 			".css-1uzyfgj-view-flexItem span.css-18ygipl-view-heading span.hidden-phone"
 		).replaceWith("Agenda For This Week");
+
+		$(courseCardContainer).empty();
 
 		// $(dashboardTarget)
 		// 	.addClass("ic-Dashboard-header__layout")
