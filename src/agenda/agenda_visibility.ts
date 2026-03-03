@@ -41,6 +41,18 @@ const ASSIGNMENT_BLOCK = `
 	</div>	
 `;
 
+export const YOUR_STATS = `
+	<div style="margin-top: 30px;">
+		<h2>Your Week At a Glance</h2>
+		<ul style="margin-top: 10px; list-style: none; margin-left: 0px;">
+			<li style="margin-bottom: 10px;">You have <strong>3</strong> assignments due this week.</li>
+			<li style="margin-bottom: 10px;">You have <strong>1</strong> quiz due this week.</li>
+			<li style="margin-bottom: 10px;">You have <strong>2</strong> discussion posts due this week.</li>
+		</ul>
+		<p style="margin-top: 10px; font-weight: 600; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
+	</div>
+`;
+
 export const WEEK = `
 	<table style="
 		width: 100%;
@@ -124,6 +136,8 @@ export function injectShowAgendaButton(
 	);
 
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
+	$(sidebarTarget).append(YOUR_STATS);
+
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
 
