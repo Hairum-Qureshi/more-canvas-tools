@@ -194,6 +194,8 @@ const weekDays: readonly string[] = [
 
 // TODO - add a redirect functionality when you click on an assignment or event block that takes you to the corresponding page for that assignment or event
 
+// TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
+
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
@@ -324,6 +326,18 @@ export function injectShowAgendaButton(
 						);
 					block.find("button").on("click", () => {
 						window.open(event.url, "_blank");
+					});
+
+					// ! FIX:
+					block.on("doubleclick", () => {
+						if (
+							confirm(
+								`Have you completed "${event.title}" for ${event.name}? Click "OK" to remove it from your agenda.`
+							)
+						) {
+							// TODO - call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
+							block.remove();
+						}
 					});
 
 					// check if it's due this week before appending to the calendar
