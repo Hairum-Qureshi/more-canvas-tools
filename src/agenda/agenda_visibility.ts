@@ -172,6 +172,14 @@ const weekDays: readonly string[] = [
 
 // TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
 
+// TODO - for assignment due date, have it list the time as well
+
+// TODO - highlight the current day of the week on the calendar
+
+// TODO - populate 'your week at a glance' stats with real data
+
+// TODO - add a loading spinner or something while the calendar data is being fetched and rendered since it can take a little bit of time to fetch all the course names for the assignments and render them on the calendar
+
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
@@ -279,48 +287,58 @@ export function injectShowAgendaButton(
 
 		$(courseCardContainer).empty();
 
-		const ASSIGNMENTS = [""]; // placeholder to toggle between empty and non-empty assignment list for testing purposes
-		!ASSIGNMENTS.length
-			? $(courseCardContainer).append(
-					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
-				) // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
-			: $(courseCardContainer).append(WEEK);
+		// placeholder to toggle between empty and non-empty assignment list for testing purposes
+		// !ASSIGNMENTS.length
+		// 	? $(courseCardContainer).append(
+		// 			`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
+		// 		) // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
+		// 	: $(courseCardContainer).append(WEEK);
 
 		$("#agendaBtn button").text("View Dashboard");
 
 		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
-			upcoming?.forEach(event => {
-				// ! I think due to the async nature, there's a delay for showcasing all the stuff on the calendar everytime you view the calendar
+			if (upcoming && upcoming.length) {
+				$(courseCardContainer).append(WEEK);
 
-				// ! Need to normalize this with the 'todo' data as well, and also need to make sure there are no duplicates between the upcoming events and the todo events since some of the assignments show up in both lists for some reason
+				upcoming.forEach(event => {
+					// ! I think due to the async nature, there's a delay for showcasing all the stuff on the calendar everytime you view the calendar
 
-				const block = $(ASSIGNMENT_BLOCK);
+					// ! Need to normalize this with the 'todo' data as well, and also need to make sure there are no duplicates between the upcoming events and the todo events since some of the assignments show up in both lists for some reason
 
-				if (event.type === "Event") {
-					block.css("background-color", "#ffea00ff");
-					block.css("color", "black");
-				}
+					const block = $(ASSIGNMENT_BLOCK);
 
-				block.find("h4").text(event.title);
-				block.find("p:nth-child(2)").text(event.name);
-				block
-					.find("p:nth-child(3)")
-					.text(`Due Date: ${new Date(event.startTime).toLocaleDateString()}`);
+					if (event.type === "Event") {
+						block.css("background-color", "#ffea00ff");
+						block.css("color", "black");
+					}
 
-				// check if it's due this week before appending to the calendar
-				const today = new Date();
-				const eventDate = new Date(event.startTime);
-				const firstDayOfWeek = new Date(
-					today.setDate(today.getDate() - today.getDay())
-				);
-				const lastDayOfWeek = new Date(
-					today.setDate(today.getDate() - today.getDay() + 6)
-				);
+					block.find("h4").text(event.title);
+					block.find("p:nth-child(2)").text(event.name);
+					block
+						.find("p:nth-child(3)")
+						.text(
+							`Due Date: ${new Date(event.startTime).toLocaleDateString()}`
+						);
 
-				if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
-					$(`#${event.weekday.toLowerCase()}Block`).append(block);
-				}
-			});
+					// check if it's due this week before appending to the calendar
+					const today = new Date();
+					const eventDate = new Date(event.startTime);
+					const firstDayOfWeek = new Date(
+						today.setDate(today.getDate() - today.getDay())
+					);
+					const lastDayOfWeek = new Date(
+						today.setDate(today.getDate() - today.getDay() + 6)
+					);
+
+					if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
+						$(`#${event.weekday.toLowerCase()}Block`).append(block);
+					}
+				});
+			} else {
+				$(courseCardContainer).append(
+					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
+				); // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
+			}
 		});
 
 		return false;
