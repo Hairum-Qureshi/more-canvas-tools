@@ -166,7 +166,7 @@ const weekDays: readonly string[] = [
 	"Saturday"
 ];
 
-// TODO - need to replace 'any' with appropriate data types
+// TODO - have it so when the user double clicks the assignment block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
 
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
 
@@ -251,37 +251,6 @@ async function getUserUpcomingAssignments() {
 
 	return upcomingCanvasStuff;
 }
-
-async function getUserToDos() {
-	const endpointURL = "https://udel.instructure.com/api/v1/users/self/todo";
-	const data = await fetch(endpointURL, {
-		credentials: "include"
-	})
-		.then(res => {
-			if (!res.ok) {
-				throw new Error(`HTTP error: ${res.status}`);
-			}
-			return res.json();
-		})
-		.catch(err => {
-			console.error("Fetch failed:", err);
-			return null;
-		});
-
-	if (!data) return;
-
-	return data;
-
-	// TODO - need to do the same for upcoming, make sure there are no duplicates, and also verify it's correctly getting the assignment deadlines for the current week
-}
-
-async function normalizeData() {
-	// return normalizedCourseAssignmentData;
-}
-
-normalizeData();
-// getUserUpcomingAssignments();
-// getUserToDos();
 
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
