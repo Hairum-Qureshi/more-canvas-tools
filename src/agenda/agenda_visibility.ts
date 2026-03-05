@@ -1,3 +1,9 @@
+import {
+	CalendarEvent,
+	CanvasCalendarEvent,
+	CanvasEvent
+} from "~src/interfaces";
+
 export const LIST_AGENDA_BUTTON = `
 	<li 
 	id="agendaBtn" 
@@ -43,7 +49,7 @@ const ASSIGNMENT_BLOCK = `
 
 export const YOUR_STATS = `
 	<div style="margin-top: 30px;">
-		<h2>Your Week At a Glance</h2>
+		<h2>Your Week at a Glance</h2>
 		<ul style="margin-top: 10px; list-style: none; margin-left: 0px;">
 			<li style="margin-bottom: 10px;">You have <strong>3</strong> assignments due this week.</li>
 			<li style="margin-bottom: 10px;">You have <strong>1</strong> quiz due this week.</li>
@@ -149,9 +155,108 @@ export const WEEK = `
 	</table>
 `;
 
+const weekDays: readonly string[] = [
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday"
+];
+
+// TODO - need to replace 'any' with appropriate data types
+
+// * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
+
+// TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
+
+async function getUserCourse(courseID: number): Promise<string> {
+	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
+	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
+	const courseData: any = await fetch(endpointURL)
+		.then(res => {
+			if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+			return res.json();
+		})
+		.catch(err => {
+			console.error("Fetch failed:", err);
+			return null;
+		});
+
+	if (!courseData) return "N/A";
+
+	return courseData.name;
+}
+
+async function getUserUpcomingAssignments() {
+	const endpointURL = "/api/v1/users/self/upcoming_events";
+	const csrfToken = decodeURIComponent(
+		document.cookie.match(/_csrf_token=([^;]+)/)?.[1] || ""
+	);
+
+	const canvasCalendarEvents: CanvasCalendarEvent[] = await fetch(endpointURL, {
+		credentials: "include",
+		headers: {
+			"X-CSRF-Token": csrfToken,
+			Accept: "application/json"
+		}
+	})
+		.then(res => {
+			if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+			return res.json();
+		})
+		.catch(err => {
+			console.error("Fetch failed:", err);
+			return null;
+		});
+
+	if (!canvasCalendarEvents) return;
+
+	const canvasEvent: CanvasEvent[] = [];
+
+	for (const upcomingEventObj of canvasCalendarEvents) {
+		const upcomingType = upcomingEventObj.html_url.includes("calendar")
+			? "Event"
+			: "Assignment"; // TODO - need to factor in an event *could* be a quiz!
+
+		switch (upcomingType) {
+			case "Event":
+				canvasEvent.push({
+					type: "Event",
+					url: upcomingEventObj.html_url,
+					name: upcomingEventObj.title,
+					startTime: upcomingEventObj.start_at,
+					endTime: upcomingEventObj.end_at,
+					title: upcomingEventObj.title,
+					location: (upcomingEventObj as CalendarEvent).location_name || "N/A"
+				});
+				break;
+
+			case "Assignment":
+				canvasEvent.push({
+					type: "Assignment",
+					url: upcomingEventObj.html_url,
+					name: await getUserCourse(upcomingEventObj.assignment!.course_id),
+					startTime: upcomingEventObj.start_at,
+					endTime: upcomingEventObj.end_at,
+					title: upcomingEventObj.title
+				});
+				break;
+		}
+	}
+
+	canvasCalendarEvents.map(async (upcomingObj: CanvasCalendarEvent) => {});
+
+	console.log(">", canvasEvent);
+	// return data;
+}
+
 async function getUserToDos() {
 	const endpointURL = "https://udel.instructure.com/api/v1/users/self/todo";
-	const data = await fetch(endpointURL)
+	const data = await fetch(endpointURL, {
+		credentials: "include"
+	})
 		.then(res => {
 			if (!res.ok) {
 				throw new Error(`HTTP error: ${res.status}`);
@@ -163,45 +268,55 @@ async function getUserToDos() {
 			return null;
 		});
 
-	const importantData: {
-		url: string;
-		courseName: string;
-		dayDue: string;
-		timeDue: string;
-		assignmentTitle: string;
-	}[] = [];
+	// const importantData: {
+	// 	url: string;
+	// 	courseName: string;
+	// 	dayDue: string;
+	// 	timeDue: string;
+	// 	assignmentTitle: string;
+	// }[] = [];
 
 	if (!data) return;
 
-	const weekDays: readonly string[] = [
-		"Sunday",
-		"Monday",
-		"Tuesday",
-		"Wednesday",
-		"Thursday",
-		"Friday",
-		"Saturday"
-	];
+	// const weekDays: readonly string[] = [
+	// 	"Sunday",
+	// 	"Monday",
+	// 	"Tuesday",
+	// 	"Wednesday",
+	// 	"Thursday",
+	// 	"Friday",
+	// 	"Saturday"
+	// ];
 
-	data.forEach((todo: any) => {
-		const obj = {
-			url: todo.html_url,
-			courseName: todo.context_name,
-			dayDue: weekDays[new Date(todo.assignment.due_at).getDay()],
-			timeDue: new Date(todo.assignment.due_at).toLocaleTimeString([], {
-				hour: "2-digit",
-				minute: "2-digit"
-			}),
-			assignmentTitle: todo.assignment.name.split(" ").splice(1).join(" ")
-		};
+	return data;
 
-		importantData.push(obj);
-	});
+	// TODO - need to do the same for upcoming, make sure there are no duplicates, and also verify it's correctly getting the assignment deadlines for the current week
 
-	console.log(importantData);
+	// data.forEach((todo: any) => {
+	// const obj = {
+	// 	url: todo.html_url,
+	// 	courseName: todo.context_name,
+	// 	dayDue: weekDays[new Date(todo.assignment.due_at).getDay()],
+	// 	timeDue: new Date(todo.assignment.due_at).toLocaleTimeString([], {
+	// 		hour: "2-digit",
+	// 		minute: "2-digit"
+	// 	}),
+	// 	assignmentTitle: todo.assignment.name.split(" ").splice(1).join(" ") // ! does not properly properly get the assignment title - need to fix
+	// };
+
+	// importantData.push(obj);
+	// });
+
+	// (importantData);
 }
 
-getUserToDos();
+async function normalizeData() {
+	// return normalizedCourseAssignmentData;
+}
+
+normalizeData();
+// getUserUpcomingAssignments();
+// getUserToDos();
 
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
@@ -215,6 +330,8 @@ export function injectShowAgendaButton(
 
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$(sidebarTarget).append(YOUR_STATS);
+
+	getUserUpcomingAssignments();
 
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
