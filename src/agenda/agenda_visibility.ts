@@ -31,7 +31,7 @@ export const LIST_AGENDA_BUTTON = `
 	</li>
 `;
 
-const ASSIGNMENT_BLOCK = `
+const BLOCK = `
 	<div style="
 		border: 1px solid black;
 		padding: 10px;
@@ -180,6 +180,8 @@ const weekDays: readonly string[] = [
 
 // TODO - add a loading spinner or something while the calendar data is being fetched and rendered since it can take a little bit of time to fetch all the course names for the assignments and render them on the calendar
 
+// TODO - add a redirect functionality when you click on an assignment or event block that takes you to the corresponding page for that assignment or event
+
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
@@ -294,7 +296,7 @@ export function injectShowAgendaButton(
 				$(courseCardContainer).append(WEEK);
 
 				upcoming.forEach(event => {
-					const block = $(ASSIGNMENT_BLOCK);
+					const block = $(BLOCK);
 
 					if (event.type === "Event") {
 						block.css("background-color", "#ffea00ff");
