@@ -322,6 +322,9 @@ export function injectShowAgendaButton(
 						.text(
 							`Due Date: ${new Date(event.startTime).toLocaleDateString()}`
 						);
+					block.find("button").on("click", () => {
+						window.open(event.url, "_blank");
+					});
 
 					// check if it's due this week before appending to the calendar
 					const today = new Date();
