@@ -186,7 +186,7 @@ async function getUserCourse(courseID: number): Promise<string> {
 
 	if (!courseData) return "N/A";
 
-	return courseData.name;
+	return courseData.name.split(" ").slice(1).join(" ");
 }
 
 async function getUserUpcomingAssignments() {
