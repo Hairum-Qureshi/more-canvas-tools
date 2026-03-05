@@ -166,7 +166,7 @@ const weekDays: readonly string[] = [
 	"Saturday"
 ];
 
-// TODO - have it so when the user double clicks the assignment block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
+// TODO - have it so when the user double clicks the assignment or event block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
 
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
 
@@ -287,13 +287,6 @@ export function injectShowAgendaButton(
 
 		$(courseCardContainer).empty();
 
-		// placeholder to toggle between empty and non-empty assignment list for testing purposes
-		// !ASSIGNMENTS.length
-		// 	? $(courseCardContainer).append(
-		// 			`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
-		// 		) // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
-		// 	: $(courseCardContainer).append(WEEK);
-
 		$("#agendaBtn button").text("View Dashboard");
 
 		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
@@ -301,10 +294,6 @@ export function injectShowAgendaButton(
 				$(courseCardContainer).append(WEEK);
 
 				upcoming.forEach(event => {
-					// ! I think due to the async nature, there's a delay for showcasing all the stuff on the calendar everytime you view the calendar
-
-					// ! Need to normalize this with the 'todo' data as well, and also need to make sure there are no duplicates between the upcoming events and the todo events since some of the assignments show up in both lists for some reason
-
 					const block = $(ASSIGNMENT_BLOCK);
 
 					if (event.type === "Event") {
