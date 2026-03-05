@@ -45,6 +45,19 @@ const BLOCK = `
 		<h4 style="margin: 0;">Assignment Name</h4>
 		<p style="margin: 5px 0;">Course Name</p>
 		<p style="margin: 0;">Due Date: MM/DD/YYYY</p>
+		<button style="
+			margin-top: 5px;
+			padding: 5px 10px;
+			background-color: white;
+			color: #00529f;
+			border: 2px solid #10d1dcff;
+			border: none;
+			border-radius: 4px;
+			font-size: 12px;
+			cursor: pointer;
+		" title="View Assignment Button">
+			See Details
+		</button>
 	</div>	
 `;
 
