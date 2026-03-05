@@ -40,6 +40,7 @@ const ASSIGNMENT_BLOCK = `
 		color: white;
 		word-wrap: break-word;
 		font-size: 13px;
+		margin-bottom: 10px;
 	">
 		<h4 style="margin: 0;">Assignment Name</h4>
 		<p style="margin: 5px 0;">Course Name</p>
@@ -213,7 +214,7 @@ async function getUserUpcomingAssignments() {
 
 	if (!canvasCalendarEvents) return;
 
-	const canvasEvent: CanvasEvent[] = [];
+	const upcomingCanvasStuff: CanvasEvent[] = [];
 
 	for (const upcomingEventObj of canvasCalendarEvents) {
 		const upcomingType = upcomingEventObj.html_url.includes("calendar")
@@ -222,34 +223,33 @@ async function getUserUpcomingAssignments() {
 
 		switch (upcomingType) {
 			case "Event":
-				canvasEvent.push({
+				upcomingCanvasStuff.push({
 					type: "Event",
 					url: upcomingEventObj.html_url,
 					name: upcomingEventObj.title,
 					startTime: upcomingEventObj.start_at,
 					endTime: upcomingEventObj.end_at,
 					title: upcomingEventObj.title,
-					location: (upcomingEventObj as CalendarEvent).location_name || "N/A"
+					location: (upcomingEventObj as CalendarEvent).location_name || "N/A",
+					weekday: weekDays[new Date(upcomingEventObj.start_at).getDay()]
 				});
 				break;
 
 			case "Assignment":
-				canvasEvent.push({
+				upcomingCanvasStuff.push({
 					type: "Assignment",
 					url: upcomingEventObj.html_url,
 					name: await getUserCourse(upcomingEventObj.assignment!.course_id),
 					startTime: upcomingEventObj.start_at,
 					endTime: upcomingEventObj.end_at,
-					title: upcomingEventObj.title
+					title: upcomingEventObj.title,
+					weekday: weekDays[new Date(upcomingEventObj.start_at).getDay()]
 				});
 				break;
 		}
 	}
 
-	canvasCalendarEvents.map(async (upcomingObj: CanvasCalendarEvent) => {});
-
-	console.log(">", canvasEvent);
-	// return data;
+	return upcomingCanvasStuff;
 }
 
 async function getUserToDos() {
@@ -268,46 +268,11 @@ async function getUserToDos() {
 			return null;
 		});
 
-	// const importantData: {
-	// 	url: string;
-	// 	courseName: string;
-	// 	dayDue: string;
-	// 	timeDue: string;
-	// 	assignmentTitle: string;
-	// }[] = [];
-
 	if (!data) return;
-
-	// const weekDays: readonly string[] = [
-	// 	"Sunday",
-	// 	"Monday",
-	// 	"Tuesday",
-	// 	"Wednesday",
-	// 	"Thursday",
-	// 	"Friday",
-	// 	"Saturday"
-	// ];
 
 	return data;
 
 	// TODO - need to do the same for upcoming, make sure there are no duplicates, and also verify it's correctly getting the assignment deadlines for the current week
-
-	// data.forEach((todo: any) => {
-	// const obj = {
-	// 	url: todo.html_url,
-	// 	courseName: todo.context_name,
-	// 	dayDue: weekDays[new Date(todo.assignment.due_at).getDay()],
-	// 	timeDue: new Date(todo.assignment.due_at).toLocaleTimeString([], {
-	// 		hour: "2-digit",
-	// 		minute: "2-digit"
-	// 	}),
-	// 	assignmentTitle: todo.assignment.name.split(" ").splice(1).join(" ") // ! does not properly properly get the assignment title - need to fix
-	// };
-
-	// importantData.push(obj);
-	// });
-
-	// (importantData);
 }
 
 async function normalizeData() {
@@ -331,8 +296,6 @@ export function injectShowAgendaButton(
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$(sidebarTarget).append(YOUR_STATS);
 
-	getUserUpcomingAssignments();
-
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
 
@@ -354,8 +317,42 @@ export function injectShowAgendaButton(
 				) // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
 			: $(courseCardContainer).append(WEEK);
 
-		$("#sundayBlock").append(ASSIGNMENT_BLOCK);
 		$("#agendaBtn button").text("View Dashboard");
+
+		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
+			upcoming?.forEach(event => {
+				// ! I think due to the async nature, there's a delay for showcasing all the stuff on the calendar everytime you view the calendar
+
+				// ! Need to normalize this with the 'todo' data as well, and also need to make sure there are no duplicates between the upcoming events and the todo events since some of the assignments show up in both lists for some reason
+
+				const block = $(ASSIGNMENT_BLOCK);
+
+				if (event.type === "Event") {
+					block.css("background-color", "#ffea00ff");
+					block.css("color", "black");
+				}
+
+				block.find("h4").text(event.title);
+				block.find("p:nth-child(2)").text(event.name);
+				block
+					.find("p:nth-child(3)")
+					.text(`Due Date: ${new Date(event.startTime).toLocaleDateString()}`);
+
+				// check if it's due this week before appending to the calendar
+				const today = new Date();
+				const eventDate = new Date(event.startTime);
+				const firstDayOfWeek = new Date(
+					today.setDate(today.getDate() - today.getDay())
+				);
+				const lastDayOfWeek = new Date(
+					today.setDate(today.getDate() - today.getDay() + 6)
+				);
+
+				if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
+					$(`#${event.weekday.toLowerCase()}Block`).append(block);
+				}
+			});
+		});
 
 		return false;
 	});
