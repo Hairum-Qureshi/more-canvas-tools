@@ -50,8 +50,7 @@ const BLOCK = `
 			padding: 5px 10px;
 			background-color: white;
 			color: #00529f;
-			border: 2px solid #10d1dcff;
-			border: none;
+			border: 1px solid #1d77c0ff;
 			border-radius: 4px;
 			font-size: 12px;
 			cursor: pointer;
