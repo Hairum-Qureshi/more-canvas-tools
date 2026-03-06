@@ -63,10 +63,11 @@ const BLOCK = `
 export const YOUR_STATS = `
 	<div style="margin-top: 30px;">
 		<h2>Your Week at a Glance</h2>
+		<p id = "notice">Press the button above to view your stats.</p>
 		<ul style="margin-top: 10px; list-style: none; margin-left: 0px;">
-			<li style="margin-bottom: 10px;">You have <strong>3</strong> assignments due this week.</li>
-			<li style="margin-bottom: 10px;">You have <strong>1</strong> quiz due this week.</li>
-			<li style="margin-bottom: 10px;">You have <strong>2</strong> discussion posts due this week.</li>
+			<li style="margin-bottom: 10px;" id = "numAssignments"></li>
+			<li style="margin-bottom: 10px;" id = "numQuizzes"></li>
+			<li style="margin-bottom: 10px;" id = "numDiscussions"></li>
 		</ul>
 		<p style="margin-top: 10px; font-weight: bold; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
 	</div>
@@ -196,6 +197,8 @@ const weekDays: readonly string[] = [
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
 
+// ? There *might* be an issue with removing an assignment you've already complete that's listed as 'coming up'. Even though you may have completed the assignment, it'll still show up on the calendar because it's a future assignment not listed from the to-dos that you can remove.
+
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
@@ -305,12 +308,24 @@ export function injectShowAgendaButton(
 
 		$("#agendaBtn button").text("View Dashboard");
 
+		$(`#notice`).html(
+			'<img src = "https://i.ibb.co/Fk1pnB0V/output-onlinegiftools.gif" style = "width: 50px; height: 50px;" /><span style = "margin-left: 0px;">Loading your agenda...</span>'
+		);
+
 		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
 			if (upcoming && upcoming.length) {
 				$(courseCardContainer).append(WEEK);
 
+				let numAssignments = 0;
+				let numQuizzes = 0;
+				let numDiscussions = 0;
+
 				upcoming.forEach(event => {
 					const block = $(BLOCK);
+
+					numAssignments += event.type === "Assignment" ? 1 : 0;
+					numQuizzes += event.type === "Quiz" ? 1 : 0;
+					numDiscussions += event.type === "Discussion" ? 1 : 0;
 
 					if (event.type === "Event") {
 						block.css("background-color", "#ffea00ff");
@@ -348,6 +363,17 @@ export function injectShowAgendaButton(
 					);
 					const lastDayOfWeek = new Date(
 						today.setDate(today.getDate() - today.getDay() + 6)
+					);
+
+					$(`#notice`).remove();
+					$(`#numAssignments`).html(
+						`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
+					);
+					$(`#numQuizzes`).html(
+						`You have <strong>${numQuizzes}</strong> quiz(es) due this week.`
+					);
+					$(`#numDiscussions`).html(
+						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
 					);
 
 					if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
