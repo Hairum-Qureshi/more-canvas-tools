@@ -51,7 +51,7 @@ export interface AssignmentCalendarEvent extends CalendarEventBase {
 }
 
 export interface CanvasEvent {
-	type: "Event" | "Quiz" | "Assignment";
+	type: "Event" | "Quiz" | "Assignment" | "Discussion";
 	url: string;
 	name: string;
 	startTime: string;
