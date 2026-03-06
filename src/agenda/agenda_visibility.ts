@@ -191,8 +191,6 @@ const weekDays: readonly string[] = [
 
 // TODO - populate 'your week at a glance' stats with real data
 
-// TODO - add a loading spinner or something while the calendar data is being fetched and rendered since it can take a little bit of time to fetch all the course names for the assignments and render them on the calendar
-
 // TODO - add a redirect functionality when you click on an assignment or event block that takes you to the corresponding page for that assignment or event
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
@@ -309,10 +307,15 @@ export function injectShowAgendaButton(
 		$("#agendaBtn button").text("View Dashboard");
 
 		$(`#notice`).html(
-			'<img src = "https://i.ibb.co/Fk1pnB0V/output-onlinegiftools.gif" style = "width: 50px; height: 50px;" /><span style = "margin-left: 0px;">Loading your agenda...</span>'
+			'<img src = "https://i.ibb.co/Fk1pnB0V/output-onlinegiftools.gif" style = "width: 50px; height: 50px;" /><span>Loading your stats...</span>'
+		);
+
+		$(courseCardContainer).html(
+			'<div style = "width: 100%; font-size: 20px; text-align: center; margin-top: 10%;" id = "agendaLoadingDiv"><img src = "https://i.ibb.co/Fk1pnB0V/output-onlinegiftools.gif" style = "width: 70px; height: 70px;"><span>Loading your agenda...</span></div>'
 		);
 
 		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
+			$(`#agendaLoadingDiv`).remove();
 			if (upcoming && upcoming.length) {
 				$(courseCardContainer).append(WEEK);
 
@@ -370,7 +373,7 @@ export function injectShowAgendaButton(
 						`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
 					);
 					$(`#numQuizzes`).html(
-						`You have <strong>${numQuizzes}</strong> quiz(es) due this week.`
+						`You have <strong>${numQuizzes}</strong> quiz(zes) due this week.`
 					);
 					$(`#numDiscussions`).html(
 						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
