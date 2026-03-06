@@ -139,6 +139,25 @@ If there are no events and all assignments for the week have been completed, the
 
 "You're all caught up for this week! 🎉 Wanna get a head start on next week's work? 👀"
 
+### Notes & Future Improvements
+
+- [ ] **TODO:** When a user double-clicks an assignment or event block, prompt them to confirm removal (e.g., if they completed it). If they confirm, call the `remove todo` **DELETE** endpoint and, upon success, remove the assignment block from the calendar.
+
+- **NOTE:** Make sure to call your data-fetching functions **inside the click event listener for the agenda button**. This ensures the most up-to-date data is fetched when the user views their agenda. Otherwise, you may run into a **CORS error**.
+
+- [ ] **TODO:** Replace `udel.instructure.com` with a more generic `canvasAPIEndpoint` variable so the script can work for other schools using Canvas.
+
+- [ ] **TODO:** Include the **time** along with the assignment due date.
+
+- [ ] **TODO:** Highlight the **current day of the week** on the calendar.
+
+- **WARNING:** The **"Week at a Glance" stats** may not always be 100% accurate.
+
+- [ ] **TODO:** Display each day’s **calendar date** under the weekday name (e.g., `Sunday 10/1`, `Monday 10/2`, etc.).
+
+- **POSSIBLE ISSUE:** There may be an issue when removing an assignment that you have already completed but is still listed as **“coming up.”**  
+  Even if the assignment is completed, it may still appear on the calendar because it is a **future assignment** rather than one listed in the removable to-dos.
+
 ## Development Environment Installation
 
 If you want to develop on this project, you'll need to do the following:
