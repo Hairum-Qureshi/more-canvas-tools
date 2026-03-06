@@ -169,16 +169,6 @@ export const WEEK = `
 	</table>
 `;
 
-const weekDays: readonly string[] = [
-	"Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday"
-];
-
 // TODO - have it so when the user double clicks the assignment or event block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
 
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
@@ -188,6 +178,7 @@ const weekDays: readonly string[] = [
 // TODO - for assignment due date, have it list the time as well
 
 // TODO - highlight the current day of the week on the calendar
+
 // ! Your stats for 'week at a glance' *might* not be 100% accurate
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
@@ -196,6 +187,7 @@ const weekDays: readonly string[] = [
 
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
+
 	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
 	const courseData: any = await fetch(endpointURL)
 		.then(res => {
@@ -237,6 +229,16 @@ async function getUserUpcomingAssignments() {
 	if (!canvasCalendarEvents) return;
 
 	const upcomingCanvasStuff: CanvasEvent[] = [];
+
+	const weekDays: readonly string[] = [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday"
+	];
 
 	for (const upcomingEventObj of canvasCalendarEvents) {
 		const upcomingType = upcomingEventObj.html_url.includes("calendar")
