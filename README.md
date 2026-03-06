@@ -133,7 +133,7 @@ Each assignment block includes key metadata such as the assignment name, due dat
 
 If the block represents an event rather than an assignment, it appears in **yellow instead of blue**.
 
-When the user presses the **“View Details”** button on a block, they are redirected to the corresponding assignment or event.
+When the user presses the **See Details”** button on a block, they are redirected to the corresponding assignment or event.
 
 If there are no events and all assignments for the week have been completed, the user sees the following message:
 
