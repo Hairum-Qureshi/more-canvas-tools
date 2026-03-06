@@ -189,8 +189,6 @@ const weekDays: readonly string[] = [
 
 // TODO - highlight the current day of the week on the calendar
 
-// TODO - populate 'your week at a glance' stats with real data
-
 // TODO - add a redirect functionality when you click on an assignment or event block that takes you to the corresponding page for that assignment or event
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
