@@ -4,7 +4,6 @@ Use at your own risk. I'll try to make it obvious if there's any dangerous funct
 
 This is the "Next Generation" version of the toolkit. The `canvas-web-utils` was the old one, not as good as this!
 
-
 # Browser Support
 
 I develop on Chrome. I make no claims that it will work on anything else. It probably does work in FireFox though.
@@ -12,7 +11,9 @@ I develop on Chrome. I make no claims that it will work on anything else. It pro
 # Installation
 
 1. Install [TamperMonkey extension](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en) for Chrome.
-  *  Don't forget to [enable Developer Mode on Chrome-based browsers](https://www.tampermonkey.net/faq.php?locale=en#Q209).
+
+- Don't forget to [enable Developer Mode on Chrome-based browsers](https://www.tampermonkey.net/faq.php?locale=en#Q209).
+
 3. Visit the install link for the [More Canvas Tools userscript](https://ud-cis-teaching.github.io/more-canvas-tools/more-canvas-tools.user.js).
 4. You should be prompted to install the extension, which you should do.
 
@@ -46,13 +47,12 @@ The Activity Report allows you to check each student and TA for recent activity.
 ![Activity Report In Progress](docs/activity_report/activity_report_progress.png)
 
 6. Once the report is fully loaded, you can view the student's activity at the top. You can click on any of the column headers to sort the table by that header (click once for ascending, twice for descending).
-      * The **Submitted Recently** column shows the number of assignments that were submitted after the datetime in the "Completed since" box.
-      * The **Total Unsubmitted** shows how many published assignments this student is still responsible for. 
+   - The **Submitted Recently** column shows the number of assignments that were submitted after the datetime in the "Completed since" box.
+   - The **Total Unsubmitted** shows how many published assignments this student is still responsible for.
 
 7. The "Staff Grading" report is at the bottom. The system treats anyone with the "Instructor" and "TA" roles as staff members. This table cannot be resorted.
-      * The **Graded Recently** column shows the number of assignments had a grade entered by that staff member after the datetime in the "Completed since" box.
-  
-      * The **Graded Total** shows how many published assignments this staff member has entered a grade for. 
+   - The **Graded Recently** column shows the number of assignments had a grade entered by that staff member after the datetime in the "Completed since" box.
+   - The **Graded Total** shows how many published assignments this staff member has entered a grade for.
 
 ## Limit Section Enrollment
 
@@ -84,8 +84,7 @@ If you click on a user, it will take you to their User page, which has a link to
 
 **SORRY THIS IS NOT DONE YET.**
 
-This is a super rough prototype of a search feature. It's not very good yet, but it's a start. You can click `Search` from the global navigation menu on the left, and then use
-the dialog to search across any assignment type.
+This is a super rough prototype of a search feature. It's not very good yet, but it's a start. You can click `Search` from the global navigation menu on the left, and then use the dialog to search across any assignment type.
 
 ## Import/Export Assignment Dates
 
@@ -121,6 +120,24 @@ You can adjust the delimiter and quote for how the file is generated, but that s
 The `Save Draft` and `Load Draft` buttons allow you to store/restore the current version of the **PREVIEW AREA** (not the textarea) in your localStorage. This is useful for saving your work in progress, if you need to come back to it later.
 
 Finally, the `Preview and Publish Dates to Course` button will take the contents of the preview area and check how they will be applied to this course. It will show you a list of assignments that will be updated, and then you can click the `Apply Changes` button to actually apply the changes. This will update the assignments in the course with the new dates. Or you can click `Cancel Changes` to go back to editing the dates.
+
+## Course/Events Agenda Viewer User Script
+
+![Agenda viewer on user dashboard](docs/agenda/dashboard-image.png) ![Agenda loading](docs/agenda/loading-image.png) ![Agenda view](docs/agenda/agenda-image.png) ![All caught up view](docs/agenda/all-caught-up-image.png)
+
+When you visit your dashboard, you would normally see a list of to-dos and upcoming assignments or events. However, this user script removes that clutter and instead shows a **“View Your Weekly Agenda”** button along with a condensed stats section displaying the number of assignments due this week, discussion boards, and quizzes.
+
+When the user presses the button, they briefly see a loading message. After that, a table for the current week appears, listing all assignments and events for that week, with each item placed under its appropriate weekday.
+
+Each assignment block includes key metadata such as the assignment name, due date, and course name.
+
+If the block represents an event rather than an assignment, it appears in **yellow instead of blue**.
+
+When the user presses the **“View Details”** button on a block, they are redirected to the corresponding assignment or event.
+
+If there are no events and all assignments for the week have been completed, the user sees the following message:
+
+"You're all caught up for this week! 🎉 Wanna get a head start on next week's work? 👀"
 
 ## Development Environment Installation
 
@@ -166,8 +183,8 @@ Here's an example of what my header looks like, note the `@require` line:
 
 # Change Log
 
-* 0.1.3: Fixed bug with grades not being copied correctly with Spread Grade feature
-* 0.2.0: Spread Grade now copies the grade AND rubric, and also has an interface for copying comments.
-* 0.2.1: Fix spread grade to allow spreading grades different than the rubric
-* 0.3.0: Add feature for listing ungraded submissions
-* 0.4.0: New feature for listing recently enrolled users on course page. Also super rough prototype of search command.
+- 0.1.3: Fixed bug with grades not being copied correctly with Spread Grade feature
+- 0.2.0: Spread Grade now copies the grade AND rubric, and also has an interface for copying comments.
+- 0.2.1: Fix spread grade to allow spreading grades different than the rubric
+- 0.3.0: Add feature for listing ungraded submissions
+- 0.4.0: New feature for listing recently enrolled users on course page. Also super rough prototype of search command.
