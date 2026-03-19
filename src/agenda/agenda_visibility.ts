@@ -179,7 +179,7 @@ export const WEEK = `
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
 
-// ? There *might* be an issue with removing an assignment you've already complete that's listed as 'coming up'. Even though you may have completed the assignment, it'll still show up on the calendar because it's a future assignment not listed from the to-dos that you can remove.
+// TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
 
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
@@ -380,7 +380,7 @@ export function injectShowAgendaButton(
 			} else {
 				$(courseCardContainer).append(
 					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
-				); // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
+				);
 			}
 		});
 
