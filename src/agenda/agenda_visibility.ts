@@ -171,6 +171,8 @@ export const WEEK = `
 
 // TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
 
+// TODO - add a hover effect over the assignment blocks
+
 // TODO - for assignment due date, have it list the time as well
 
 // TODO - highlight the current day of the week on the calendar
@@ -234,13 +236,13 @@ function getWeekday(dateString: string | undefined): string {
 }
 
 function deleteTodo(todo: Todo) {
-	const endpointURL = `/api/v1/users/self/todo/assignment${todo.assignment?.id}/submitting?permanent=1`;
+	const endpointURL = `/api/v1/users/self/todo/assignment_${todo.assignment?.id}/submitting?permanent=1`;
 	const csrfToken = decodeURIComponent(
 		document.cookie.match(/_csrf_token=([^;]+)/)?.[1] || ""
 	);
 
 	fetch(endpointURL, {
-		method: "POST",
+		method: "DELETE",
 		credentials: "include",
 		headers: {
 			"X-CSRF-Token": csrfToken,
