@@ -165,8 +165,6 @@ export const WEEK = `
 	</table>
 `;
 
-// TODO - have it so when the user double clicks the assignment or event block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
-
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
 
 // TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
@@ -177,7 +175,7 @@ export const WEEK = `
 
 // TODO - highlight the current day of the week on the calendar
 
-// ! Your stats for 'week at a glance' *might* not be 100% accurate
+// TODO - make the stats for quizzes and discussion board posts for the week work too
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
 
@@ -235,8 +233,8 @@ function getWeekday(dateString: string | undefined): string {
 	return date.toLocaleDateString(undefined, options);
 }
 
-function deleteTodo(todo: Todo) {
-	const endpointURL = `/api/v1/users/self/todo/assignment_${todo.assignment?.id}/submitting?permanent=1`;
+function deleteTodo(assignmentID: string) {
+	const endpointURL = `/api/v1/users/self/todo/assignment_${assignmentID}/submitting?permanent=1`;
 	const csrfToken = decodeURIComponent(
 		document.cookie.match(/_csrf_token=([^;]+)/)?.[1] || ""
 	);
@@ -252,7 +250,7 @@ function deleteTodo(todo: Todo) {
 		.then(res => {
 			if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
 			console.log(
-				`Successfully deleted todo with assignment id ${todo.assignment?.id}`
+				`Successfully deleted todo with assignment id ${assignmentID}`
 			);
 		})
 		.catch(err => {
@@ -327,17 +325,19 @@ export function injectShowAgendaButton(
 						window.open(todo.assignment?.html_url, "_blank");
 					});
 
-					// ! FIX:
 					block.on("dblclick", () => {
 						if (
 							confirm(
 								`Have you completed "${todo.assignment?.name}" for ${courseName}? Click "OK" to remove it from your agenda.`
 							)
 						) {
-							// TODO - call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
-							block.remove();
-							deleteTodo(todo);
+							if (todo.assignment && todo.assignment.id) {
+								deleteTodo(todo.assignment.id.toString());
+								block.remove();
+							}
 						}
+
+						return;
 					});
 
 					// check if it's due this week before appending to the calendar
