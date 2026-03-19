@@ -165,17 +165,17 @@ export const WEEK = `
 	</table>
 `;
 
-// TODO - have it so when the user double clicks the assignment or event block, it would prompt the user for them to remove it (i.e. if they completed it). If they click yes, it'll call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
-
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
 
 // TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
+
+// TODO - add a hover effect over the assignment blocks
 
 // TODO - for assignment due date, have it list the time as well
 
 // TODO - highlight the current day of the week on the calendar
 
-// ! Your stats for 'week at a glance' *might* not be 100% accurate
+// TODO - make the stats for quizzes and discussion board posts for the week work too
 
 // TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
 
@@ -233,6 +233,31 @@ function getWeekday(dateString: string | undefined): string {
 	return date.toLocaleDateString(undefined, options);
 }
 
+function deleteTodo(assignmentID: string) {
+	const endpointURL = `/api/v1/users/self/todo/assignment_${assignmentID}/submitting?permanent=1`;
+	const csrfToken = decodeURIComponent(
+		document.cookie.match(/_csrf_token=([^;]+)/)?.[1] || ""
+	);
+
+	fetch(endpointURL, {
+		method: "DELETE",
+		credentials: "include",
+		headers: {
+			"X-CSRF-Token": csrfToken,
+			Accept: "application/json"
+		}
+	})
+		.then(res => {
+			if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+			console.log(
+				`Successfully deleted todo with assignment id ${assignmentID}`
+			);
+		})
+		.catch(err => {
+			console.error("Failed to delete todo:", err);
+		});
+}
+
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
 	courseCardContainer: HTMLElement
@@ -245,16 +270,6 @@ export function injectShowAgendaButton(
 
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$(sidebarTarget).append(YOUR_STATS);
-
-	const weekdays: readonly string[] = [
-		"Sunday",
-		"Monday",
-		"Tuesday",
-		"Wednesday",
-		"Thursday",
-		"Friday",
-		"Saturday"
-	];
 
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
@@ -292,9 +307,6 @@ export function injectShowAgendaButton(
 				todos.forEach(async (todo: Todo) => {
 					const block = $(BLOCK);
 
-					console.log(">", todo);
-
-					numAssignments += todo.assignment ? 1 : 0;
 					const courseName: string =
 						(await getUserCourse(todo.assignment?.course_id || 0)) || "N/A";
 
@@ -313,16 +325,22 @@ export function injectShowAgendaButton(
 						window.open(todo.assignment?.html_url, "_blank");
 					});
 
-					// ! FIX:
-					block.on("doubleclick", () => {
+					block.on("dblclick", () => {
 						if (
 							confirm(
 								`Have you completed "${todo.assignment?.name}" for ${courseName}? Click "OK" to remove it from your agenda.`
 							)
 						) {
-							// TODO - call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
-							block.remove();
+							if (todo.assignment && todo.assignment.id) {
+								deleteTodo(todo.assignment.id.toString());
+								block.remove();
+								$(`#numAssignments`).html(
+									`You have <strong>${--numAssignments}</strong> assignment(s) due this week.`
+								);
+							}
 						}
+
+						return;
 					});
 
 					// check if it's due this week before appending to the calendar
@@ -335,15 +353,6 @@ export function injectShowAgendaButton(
 					);
 
 					$(`#notice`).remove();
-					$(`#numAssignments`).html(
-						`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
-					);
-					$(`#numQuizzes`).html(
-						`You have <strong>${numQuizzes}</strong> quiz(zes) due this week.`
-					);
-					$(`#numDiscussions`).html(
-						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
-					);
 
 					const dueDate =
 						(todo.assignment && new Date(todo.assignment?.due_at)) || null;
@@ -353,6 +362,16 @@ export function injectShowAgendaButton(
 						dueDate >= firstDayOfWeek &&
 						dueDate <= lastDayOfWeek
 					) {
+						numAssignments += todo.assignment ? 1 : 0;
+						$(`#numAssignments`).html(
+							`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
+						);
+						$(`#numQuizzes`).html(
+							`You have <strong>${numQuizzes}</strong> quiz(zes) due this week.`
+						);
+						$(`#numDiscussions`).html(
+							`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
+						);
 						$(
 							`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
 						).append(block);
