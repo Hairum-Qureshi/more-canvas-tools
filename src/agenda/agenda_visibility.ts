@@ -345,13 +345,18 @@ export function injectShowAgendaButton(
 						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
 					);
 
-					// ! may need to change:
-					// if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
-					$(
-						`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
-					).append(block);
+					const dueDate =
+						(todo.assignment && new Date(todo.assignment?.due_at)) || null;
 
-					// }
+					if (
+						dueDate &&
+						dueDate >= firstDayOfWeek &&
+						dueDate <= lastDayOfWeek
+					) {
+						$(
+							`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
+						).append(block);
+					}
 				});
 			} else {
 				$(courseCardContainer).append(
