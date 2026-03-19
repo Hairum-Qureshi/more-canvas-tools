@@ -1,8 +1,4 @@
-import {
-	CalendarEvent,
-	CanvasCalendarEvent,
-	CanvasEvent
-} from "~src/interfaces";
+import { Todo } from "~src/interfaces";
 
 export const LIST_AGENDA_BUTTON = `
 	<li 
@@ -205,12 +201,12 @@ async function getUserCourse(courseID: number): Promise<string> {
 }
 
 async function getUserUpcomingAssignments() {
-	const endpointURL = "/api/v1/users/self/upcoming_events";
+	const endpointURL = "/api/v1/users/self/todo";
 	const csrfToken = decodeURIComponent(
 		document.cookie.match(/_csrf_token=([^;]+)/)?.[1] || ""
 	);
 
-	const canvasCalendarEvents: CanvasCalendarEvent[] = await fetch(endpointURL, {
+	const currStudentTodos: Todo[] = await fetch(endpointURL, {
 		credentials: "include",
 		headers: {
 			"X-CSRF-Token": csrfToken,
@@ -226,54 +222,15 @@ async function getUserUpcomingAssignments() {
 			return null;
 		});
 
-	if (!canvasCalendarEvents) return;
+	return currStudentTodos;
+}
 
-	const upcomingCanvasStuff: CanvasEvent[] = [];
+function getWeekday(dateString: string | undefined): string {
+	if (!dateString) return "N/A";
 
-	const weekDays: readonly string[] = [
-		"Sunday",
-		"Monday",
-		"Tuesday",
-		"Wednesday",
-		"Thursday",
-		"Friday",
-		"Saturday"
-	];
-
-	for (const upcomingEventObj of canvasCalendarEvents) {
-		const upcomingType = upcomingEventObj.html_url.includes("calendar")
-			? "Event"
-			: "Assignment"; // TODO - need to factor in an event *could* be a quiz!
-
-		switch (upcomingType) {
-			case "Event":
-				upcomingCanvasStuff.push({
-					type: "Event",
-					url: upcomingEventObj.html_url,
-					name: upcomingEventObj.title,
-					startTime: upcomingEventObj.start_at,
-					endTime: upcomingEventObj.end_at,
-					title: upcomingEventObj.title,
-					location: (upcomingEventObj as CalendarEvent).location_name || "N/A",
-					weekday: weekDays[new Date(upcomingEventObj.start_at).getDay()]
-				});
-				break;
-
-			case "Assignment":
-				upcomingCanvasStuff.push({
-					type: "Assignment",
-					url: upcomingEventObj.html_url,
-					name: await getUserCourse(upcomingEventObj.assignment!.course_id),
-					startTime: upcomingEventObj.start_at,
-					endTime: upcomingEventObj.end_at,
-					title: upcomingEventObj.title,
-					weekday: weekDays[new Date(upcomingEventObj.start_at).getDay()]
-				});
-				break;
-		}
-	}
-
-	return upcomingCanvasStuff;
+	const date = new Date(dateString);
+	const options: Intl.DateTimeFormatOptions = { weekday: "long" };
+	return date.toLocaleDateString(undefined, options);
 }
 
 export function injectShowAgendaButton(
@@ -288,6 +245,16 @@ export function injectShowAgendaButton(
 
 	$(sidebarTarget).append(LIST_AGENDA_BUTTON);
 	$(sidebarTarget).append(YOUR_STATS);
+
+	const weekdays: readonly string[] = [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday"
+	];
 
 	$("#agendaBtn").on("click", (event: JQuery.ClickEvent) => {
 		event.preventDefault();
@@ -313,43 +280,44 @@ export function injectShowAgendaButton(
 			'<div style = "width: 100%; font-size: 20px; text-align: center; margin-top: 10%;" id = "agendaLoadingDiv"><img src = "https://i.ibb.co/Fk1pnB0V/output-onlinegiftools.gif" style = "width: 70px; height: 70px;"><span>Loading your agenda...</span></div>'
 		);
 
-		getUserUpcomingAssignments().then((upcoming: CanvasEvent[] | undefined) => {
+		getUserUpcomingAssignments().then((todos: Todo[] | undefined) => {
 			$(`#agendaLoadingDiv`).remove();
-			if (upcoming && upcoming.length) {
+			if (todos && todos.length) {
 				$(courseCardContainer).append(WEEK);
 
 				let numAssignments = 0;
 				let numQuizzes = 0;
 				let numDiscussions = 0;
 
-				upcoming.forEach(event => {
+				todos.forEach(async (todo: Todo) => {
 					const block = $(BLOCK);
 
-					numAssignments += event.type === "Assignment" ? 1 : 0;
-					numQuizzes += event.type === "Quiz" ? 1 : 0;
-					numDiscussions += event.type === "Discussion" ? 1 : 0;
+					console.log(">", todo);
 
-					if (event.type === "Event") {
-						block.css("background-color", "#ffea00ff");
-						block.css("color", "black");
-					}
+					numAssignments += todo.assignment ? 1 : 0;
+					const courseName: string =
+						(await getUserCourse(todo.assignment?.course_id || 0)) || "N/A";
 
-					block.find("h4").text(event.title);
-					block.find("p:nth-child(2)").text(event.name);
+					// TODO - need to figure out how to check for these
+					// numQuizzes += todo.type === "Quiz" ? 1 : 0;
+					// numDiscussions += todo.type === "Discussion" ? 1 : 0;
+
+					block.find("h4").text(todo.assignment?.name || "N/A");
+					block.find("p:nth-child(2)").text(courseName);
 					block
 						.find("p:nth-child(3)")
 						.text(
-							`Due Date: ${new Date(event.startTime).toLocaleDateString()}`
+							`Due Date: ${new Date(todo.assignment?.due_at.toString() || "N/A").toLocaleDateString()}`
 						);
 					block.find("button").on("click", () => {
-						window.open(event.url, "_blank");
+						window.open(todo.assignment?.html_url, "_blank");
 					});
 
 					// ! FIX:
 					block.on("doubleclick", () => {
 						if (
 							confirm(
-								`Have you completed "${event.title}" for ${event.name}? Click "OK" to remove it from your agenda.`
+								`Have you completed "${todo.assignment?.name}" for ${courseName}? Click "OK" to remove it from your agenda.`
 							)
 						) {
 							// TODO - call the remove todo DELETE endpoint and then upon success it'll remove the assignment block from the calendar.
@@ -359,7 +327,6 @@ export function injectShowAgendaButton(
 
 					// check if it's due this week before appending to the calendar
 					const today = new Date();
-					const eventDate = new Date(event.startTime);
 					const firstDayOfWeek = new Date(
 						today.setDate(today.getDate() - today.getDay())
 					);
@@ -378,8 +345,17 @@ export function injectShowAgendaButton(
 						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
 					);
 
-					if (eventDate >= firstDayOfWeek && eventDate <= lastDayOfWeek) {
-						$(`#${event.weekday.toLowerCase()}Block`).append(block);
+					const dueDate =
+						(todo.assignment && new Date(todo.assignment?.due_at)) || null;
+
+					if (
+						dueDate &&
+						dueDate >= firstDayOfWeek &&
+						dueDate <= lastDayOfWeek
+					) {
+						$(
+							`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
+						).append(block);
 					}
 				});
 			} else {
