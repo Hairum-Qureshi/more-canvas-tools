@@ -334,6 +334,9 @@ export function injectShowAgendaButton(
 							if (todo.assignment && todo.assignment.id) {
 								deleteTodo(todo.assignment.id.toString());
 								block.remove();
+								$(`#numAssignments`).html(
+									`You have <strong>${--numAssignments}</strong> assignment(s) due this week.`
+								);
 							}
 						}
 
