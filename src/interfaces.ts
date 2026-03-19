@@ -20,45 +20,18 @@ export interface Assignment {
 	html_url: string;
 }
 
-export interface CalendarEventBase {
-	id: number | string;
-	title: string;
-	description: string | null;
-	start_at: string;
-	end_at: string;
-	all_day: boolean;
-	all_day_date: string | null;
-	created_at: string;
-	updated_at: string;
-	workflow_state: string;
-	context_code: string;
-	url: string;
+export type TodoType = "grading" | "submitting" | "other";
+
+export type ContextType = "course" | "group";
+
+export interface Todo {
+	type: TodoType;
+	assignment?: Assignment;
+	ignore: string;
+	ignore_permanently: string;
 	html_url: string;
+	needs_grading_count?: number;
+	context_type: ContextType;
+	course_id?: number;
+	group_id?: number | null;
 }
-
-export interface CalendarEvent extends CalendarEventBase {
-	location_name: string | null;
-	location_address: string | null;
-	child_events_count: number;
-	child_events: CalendarEvent[];
-	parent_event_id: number | null;
-	hidden: boolean;
-	assignment?: undefined;
-}
-
-export interface AssignmentCalendarEvent extends CalendarEventBase {
-	assignment: Assignment;
-}
-
-export interface CanvasEvent {
-	type: "Event" | "Quiz" | "Assignment" | "Discussion";
-	url: string;
-	name: string;
-	startTime: string;
-	endTime: string;
-	title: string;
-	location?: string | null;
-	weekday: string;
-}
-
-export type CanvasCalendarEvent = CalendarEvent | AssignmentCalendarEvent;
