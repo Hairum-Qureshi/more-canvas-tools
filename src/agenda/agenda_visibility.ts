@@ -66,7 +66,7 @@ export const YOUR_STATS = `
 			<li style="margin-bottom: 10px;" id = "numDiscussions"></li>
 		</ul>
 		<p style="margin-top: 10px; font-weight: bold; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
-		<p>If you've completed an assignment, double click the assignment block and you'll be prompted to keep it or remove it.</p>
+		<p style="font-weight: bold;">If you've completed an assignment, double click the assignment block and you'll be prompted to keep it or remove it.</p>
 	</div>
 `;
 
