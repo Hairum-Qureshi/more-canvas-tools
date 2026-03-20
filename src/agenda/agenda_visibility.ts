@@ -188,11 +188,7 @@ const WEEK = `
 
 // TODO - for assignment due date, have it list the time as well
 
-// TODO - highlight the current day of the week on the calendar
-
 // TODO - make the stats for quizzes and discussion board posts for the week work too
-
-// TODO - maybe list each day's number underneath the day of the week on the calendar (i.e. Sunday 10/1, Monday 10/2, etc.)
 
 // TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
 
@@ -335,13 +331,24 @@ export function injectShowAgendaButton(
 					// numQuizzes += todo.type === "Quiz" ? 1 : 0;
 					// numDiscussions += todo.type === "Discussion" ? 1 : 0;
 
+					console.log(
+						todo.assignment?.availability_status?.date.substring(11, 19)
+					);
+
 					block.find("h4").text(todo.assignment?.name || "N/A");
 					block.find("p:nth-child(2)").text(courseName);
-					block
-						.find("p:nth-child(3)")
-						.text(
-							`Due Date: ${new Date(todo.assignment?.due_at.toString() || "N/A").toLocaleDateString()}`
-						);
+					block.find("p:nth-child(3)").text(
+						`Due Date: ${new Date(todo.assignment?.due_at.toString() || "N/A").toLocaleDateString()} \n Time Due: ${
+							new Date(
+								todo.assignment?.availability_status?.date || "N/A"
+							).toLocaleString("en-US", {
+								timeZone: "America/New_York",
+								hour: "numeric",
+								minute: "2-digit",
+								hour12: true
+							}) || "N/A"
+						}`
+					);
 					block.find("button").on("click", () => {
 						window.open(todo.assignment?.html_url, "_blank");
 					});
