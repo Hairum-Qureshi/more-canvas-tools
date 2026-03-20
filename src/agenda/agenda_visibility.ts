@@ -504,6 +504,12 @@ export function injectShowAgendaButton(
 
 				$(courseCardContainer).append(nextWeekHTML);
 
+				const currentWeekDay = new Date()
+					.toLocaleString("en", { weekday: "long" })
+					.toLowerCase();
+				$(`#${currentWeekDay}Block`).css("background-color", "#fbe941ff");
+				$(`#${currentWeekDay}WeekHeader`).css("background-color", "#fbe941ff");
+
 				let numAssignments = 0;
 				let numQuizzes = 0;
 				let numDiscussions = 0;
