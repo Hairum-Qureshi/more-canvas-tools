@@ -10,6 +10,10 @@ export interface Assignment {
 	grading_standard_id: number | null;
 	grading_type: string;
 	group_category_id: number | null;
+	availability_status?: {
+		date: string;
+		status: string;
+	};
 	lock_at: string | null;
 	peer_reviews: boolean;
 	position: number;
