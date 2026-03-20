@@ -183,8 +183,6 @@ const WEEK = `
 
 // * NOTE: you need to call your functions inside the click event listener for the agenda button so that it fetches the most up-to-date data when the user clicks to view their agenda, otherwise you'll run into a CORS error.
 
-// TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
-
 // TODO - add a hover effect over the assignment blocks
 
 // TODO - make the stats for quizzes and discussion board posts for the week work too
@@ -194,7 +192,7 @@ const WEEK = `
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 
-	const endpointURL = `https://udel.instructure.com/api/v1/courses/${courseID}`;
+	const endpointURL = `/api/v1/courses/${courseID}`;
 	const courseData: any = await fetch(endpointURL)
 		.then(res => {
 			if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
@@ -268,6 +266,23 @@ function deleteTodo(assignmentID: string) {
 		});
 }
 
+function getAllCurrentWeeksAssignments(todos: Todo[]): Todo[] {
+	const today = new Date();
+	const firstDayOfWeek = new Date(
+		today.setDate(today.getDate() - today.getDay())
+	);
+	const lastDayOfWeek = new Date(
+		today.setDate(today.getDate() - today.getDay() + 6)
+	);
+
+	return todos.filter(todo => {
+		const dueDate =
+			todo.assignment && new Date(todo.assignment.due_at.toString());
+
+		return dueDate && dueDate >= firstDayOfWeek && dueDate <= lastDayOfWeek;
+	});
+}
+
 export function injectShowAgendaButton(
 	sidebarTarget: HTMLElement,
 	courseCardContainer: HTMLElement
@@ -307,7 +322,12 @@ export function injectShowAgendaButton(
 
 		getUserUpcomingAssignments().then((todos: Todo[] | undefined) => {
 			$(`#agendaLoadingDiv`).remove();
-			if (todos && todos.length) {
+
+			const currentWeekTodos = todos
+				? getAllCurrentWeeksAssignments(todos)
+				: [];
+
+			if (currentWeekTodos && currentWeekTodos.length) {
 				$(courseCardContainer).append(WEEK);
 
 				const currentWeekDay = new Date()
@@ -320,7 +340,7 @@ export function injectShowAgendaButton(
 				let numQuizzes = 0;
 				let numDiscussions = 0;
 
-				todos.forEach(async (todo: Todo) => {
+				currentWeekTodos.forEach(async (todo: Todo) => {
 					const block = $(BLOCK);
 
 					const courseName: string =
@@ -329,10 +349,6 @@ export function injectShowAgendaButton(
 					// TODO - need to figure out how to check for these
 					// numQuizzes += todo.type === "Quiz" ? 1 : 0;
 					// numDiscussions += todo.type === "Discussion" ? 1 : 0;
-
-					console.log(
-						todo.assignment?.availability_status?.date.substring(11, 19)
-					);
 
 					block.find("h4").text(todo.assignment?.name || "N/A");
 					block.find("p:nth-child(2)").text(courseName);
@@ -348,6 +364,7 @@ export function injectShowAgendaButton(
 							}) || "N/A"
 						}`
 					);
+					
 					block.find("button").on("click", () => {
 						window.open(todo.assignment?.html_url, "_blank");
 					});
@@ -370,43 +387,26 @@ export function injectShowAgendaButton(
 						return;
 					});
 
-					// check if it's due this week before appending to the calendar
-					const today = new Date();
-					const firstDayOfWeek = new Date(
-						today.setDate(today.getDate() - today.getDay())
-					);
-					const lastDayOfWeek = new Date(
-						today.setDate(today.getDate() - today.getDay() + 6)
-					);
-
+					// check if it's due this week before appending to the calenda
 					$(`#notice`).remove();
 
-					const dueDate =
-						(todo.assignment && new Date(todo.assignment?.due_at)) || null;
-
-					if (
-						dueDate &&
-						dueDate >= firstDayOfWeek &&
-						dueDate <= lastDayOfWeek
-					) {
-						numAssignments += todo.assignment ? 1 : 0;
-						$(`#numAssignments`).html(
-							`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
-						);
-						$(`#numQuizzes`).html(
-							`You have <strong>${numQuizzes}</strong> quiz(zes) due this week.`
-						);
-						$(`#numDiscussions`).html(
-							`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
-						);
-						$(
-							`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
-						).append(block);
-					}
+					numAssignments += todo.assignment ? 1 : 0;
+					$(`#numAssignments`).html(
+						`You have <strong>${numAssignments}</strong> assignment(s) due this week.`
+					);
+					$(`#numQuizzes`).html(
+						`You have <strong>${numQuizzes}</strong> quiz(zes) due this week.`
+					);
+					$(`#numDiscussions`).html(
+						`You have <strong>${numDiscussions}</strong> discussion post(s) due this week.`
+					);
+					$(
+						`#${getWeekday(todo.assignment?.due_at).toLowerCase()}Block`
+					).append(block);
 				});
 			} else {
 				$(courseCardContainer).append(
-					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2>`
+					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2><button>Jump Ahead</button>`
 				);
 			}
 		});
