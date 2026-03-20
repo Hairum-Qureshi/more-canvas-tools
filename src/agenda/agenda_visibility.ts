@@ -70,8 +70,14 @@ export const YOUR_STATS = `
 	</div>
 `;
 
-function getWeekDateRange() {
-	const curr = new Date(); // get current date
+function getWeekDateRange(nextWeek: boolean = false): {
+	firstDay: string;
+	lastDay: string;
+	dateRange: string;
+} {
+	const curr = nextWeek
+		? new Date(new Date().setDate(new Date().getDate() + 7))
+		: new Date();
 	const first = curr.getDate() - curr.getDay(); // First day is the day of the month - the day of the week
 	const last = first + 6; // last day is the first day + 6
 
@@ -186,6 +192,9 @@ const WEEK = `
 // TODO - add a hover effect over the assignment blocks
 
 // TODO - make the stats for quizzes and discussion board posts for the week work too
+
+// ! For getting the next week's assignments, it's not correctly retrieving any todos for next week.
+// ! For next week's assignments, there's also no due date time listed
 
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
@@ -427,6 +436,10 @@ export function injectShowAgendaButton(
 		async (event: JQuery.ClickEvent) => {
 			event.preventDefault();
 
+			const { firstDay, lastDay } = getWeekDateRange(true);
+			const month = firstDay.split("/")[0];
+			const day = firstDay.split("/")[1];
+
 			const nextWeekDate = new Date();
 			nextWeekDate.setDate(nextWeekDate.getDate() + 7);
 
@@ -477,7 +490,7 @@ export function injectShowAgendaButton(
 					<tr style="background-color: #f2f2f2;">
 						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="sundayWeekHeader">
 							<h3 style="margin: 0;">Sunday</h3>
-							<p style="margin: 0;">${month}/${Number(day) + 0}</p>
+							<p style="margin: 0;">${firstDay}</p>
 						</th>
 						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="mondayWeekHeader">
 							<h3 style="margin: 0;">Monday</h3>
@@ -501,7 +514,7 @@ export function injectShowAgendaButton(
 						</th>
 						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="saturdayWeekHeader">
 							<h3 style="margin: 0;">Saturday</h3>
-							<p style="margin: 0;">${month}/${Number(day) + 6}</p>
+							<p style="margin: 0;">${lastDay}</p>
 						</th>
 					</tr>
 				</thead>
@@ -540,6 +553,24 @@ export function injectShowAgendaButton(
 
 					block.find("button").on("click", () => {
 						window.open(todo.assignment?.html_url, "_blank");
+					});
+
+					block.on("dblclick", () => {
+						if (
+							confirm(
+								`Have you completed "${todo.assignment?.name}" for ${courseName}? If so, click "OK" to remove it from your agenda. Otherwise, click "Cancel" to keep it on your agenda.`
+							)
+						) {
+							if (todo.assignment && todo.assignment.id) {
+								deleteTodo(todo.assignment.id.toString());
+								block.remove();
+								$(`#numAssignments`).html(
+									`You have <strong>${--numAssignments}</strong> assignment(s) due this week.`
+								);
+							}
+						}
+
+						return;
 					});
 
 					const dayId = getWeekday(todo.assignment?.due_at).toLowerCase();
