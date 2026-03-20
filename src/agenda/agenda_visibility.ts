@@ -474,21 +474,37 @@ export function injectShowAgendaButton(
 					margin-left: 2%;
 				">
 					<thead>
-						<tr style="background-color: #f2f2f2;">
-							${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-								.map((dayName, i) => {
-									const dateNum = new Date(firstDayOfNextWeek);
-									dateNum.setDate(firstDayOfNextWeek.getDate() + i);
-									return `
-										<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="${dayName.toLowerCase()}WeekHeader">
-											<h3 style="margin: 0;">${dayName}</h3>
-											<p style="margin: 0;">${dateNum.getMonth() + 1}/${dateNum.getDate()}</p>
-										</th>
-									`;
-								})
-								.join("")}
-						</tr>
-					</thead>
+					<tr style="background-color: #f2f2f2;">
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="sundayWeekHeader">
+							<h3 style="margin: 0;">Sunday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 0}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="mondayWeekHeader">
+							<h3 style="margin: 0;">Monday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 1}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="tuesdayWeekHeader">
+							<h3 style="margin: 0;">Tuesday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 2}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="wednesdayWeekHeader">
+							<h3 style="margin: 0;">Wednesday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 3}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="thursdayWeekHeader">
+							<h3 style="margin: 0;">Thursday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 4}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="fridayWeekHeader">
+							<h3 style="margin: 0;">Friday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 5}</p>
+						</th>
+						<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="saturdayWeekHeader">
+							<h3 style="margin: 0;">Saturday</h3>
+							<p style="margin: 0;">${month}/${Number(day) + 6}</p>
+						</th>
+					</tr>
+				</thead>
 					<tbody style="text-align: center;">
 						<tr>
 							${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
