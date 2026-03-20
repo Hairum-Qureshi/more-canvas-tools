@@ -66,6 +66,7 @@ export const YOUR_STATS = `
 			<li style="margin-bottom: 10px;" id = "numDiscussions"></li>
 		</ul>
 		<p style="margin-top: 10px; font-weight: bold; text-align: center; color: #00529f;">Check your agenda for a detailed weekly breakdown</p>
+		<p>If you've completed an assignment, double click the assignment block and you'll be prompted to keep it or remove it.</p>
 	</div>
 `;
 
@@ -185,8 +186,6 @@ const WEEK = `
 // TODO - may need to replace 'udel.instructure.com' with a more generic 'canvasAPIEndpoint' variable if we want this to work for other schools as well
 
 // TODO - add a hover effect over the assignment blocks
-
-// TODO - for assignment due date, have it list the time as well
 
 // TODO - make the stats for quizzes and discussion board posts for the week work too
 
