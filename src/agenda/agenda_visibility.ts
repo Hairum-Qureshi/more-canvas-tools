@@ -113,31 +113,31 @@ const WEEK = `
 	">
 		<thead>
 			<tr style="background-color: #f2f2f2;">
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "sundayWeekHeader">
 					<h3 style="margin: 0;">Sunday</h3>
 					<p style="margin: 0;">${firstDay}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "mondayWeekHeader">
 					<h3 style="margin: 0;">Monday</h3>
 					<p style="margin: 0;">${month}/${Number(day) + 1}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "tuesdayWeekHeader">
 					<h3 style="margin: 0;">Tuesday</h3>
 					<p style="margin: 0;">${month}/${Number(day) + 2}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "wednesdayWeekHeader">
 					<h3 style="margin: 0;">Wednesday</h3>
 					<p style="margin: 0;">${month}/${Number(day) + 3}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "thursdayWeekHeader">
 					<h3 style="margin: 0;">Thursday</h3>
 					<p style="margin: 0;">${month}/${Number(day) + 4}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "fridayWeekHeader">
 					<h3 style="margin: 0;">Friday</h3>
 					<p style="margin: 0;">${month}/${Number(day) + 5}</p>
 				</th>
-				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
+				<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id = "saturdayWeekHeader">
 					<h3 style="margin: 0;">Saturday</h3>
 					<p style="margin: 0;">${lastDay}</p>
 				</th>
@@ -314,6 +314,12 @@ export function injectShowAgendaButton(
 			$(`#agendaLoadingDiv`).remove();
 			if (todos && todos.length) {
 				$(courseCardContainer).append(WEEK);
+
+				const currentWeekDay = new Date()
+					.toLocaleString("en", { weekday: "long" })
+					.toLowerCase();
+				$(`#${currentWeekDay}Block`).css("background-color", "#fbe941ff");
+				$(`#${currentWeekDay}WeekHeader`).css("background-color", "#fbe941ff");
 
 				let numAssignments = 0;
 				let numQuizzes = 0;
