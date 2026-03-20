@@ -187,8 +187,6 @@ const WEEK = `
 
 // TODO - make the stats for quizzes and discussion board posts for the week work too
 
-// TODO - maybe add functionality to show upcoming assignments for next week and a button to view it
-
 async function getUserCourse(courseID: number): Promise<string> {
 	// in the future, maybe consider saving the user's courses in an object instead of having to send a continuous stream of fetch requests every time we want to get a course name for an assignment, but for now this is the most straightforward way to get the course name for each assignment without having to worry about syncing issues with the course data if we were to save it in an object and then update it every time the user goes to a different course page or something like that
 
@@ -266,8 +264,11 @@ function deleteTodo(assignmentID: string) {
 		});
 }
 
-function getAllCurrentWeeksAssignments(todos: Todo[]): Todo[] {
-	const today = new Date();
+function getAllCurrentWeeksAssignments(
+	todos: Todo[],
+	currentDate?: Date
+): Todo[] {
+	const today = currentDate ? new Date(currentDate) : new Date();
 	const firstDayOfWeek = new Date(
 		today.setDate(today.getDate() - today.getDay())
 	);
@@ -322,6 +323,7 @@ export function injectShowAgendaButton(
 
 		getUserUpcomingAssignments().then((todos: Todo[] | undefined) => {
 			$(`#agendaLoadingDiv`).remove();
+			$(`#notice`).remove();
 
 			const currentWeekTodos = todos
 				? getAllCurrentWeeksAssignments(todos)
@@ -364,7 +366,7 @@ export function injectShowAgendaButton(
 							}) || "N/A"
 						}`
 					);
-					
+
 					block.find("button").on("click", () => {
 						window.open(todo.assignment?.html_url, "_blank");
 					});
@@ -387,7 +389,6 @@ export function injectShowAgendaButton(
 						return;
 					});
 
-					// check if it's due this week before appending to the calenda
 					$(`#notice`).remove();
 
 					numAssignments += todo.assignment ? 1 : 0;
@@ -406,11 +407,146 @@ export function injectShowAgendaButton(
 				});
 			} else {
 				$(courseCardContainer).append(
-					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">You're all caught up for this week! 🎉 <br />Wanna get a head start on next week's work? 👀</h2><button>Jump Ahead</button>`
+					`<h2 style="width: 100%; text-align: center; margin-top: 10%;">
+						You're all caught up for this week! 🎉 <br />
+						Wanna get a head start on next week's work? 👀
+					</h2>
+					<button style="display: block; width: 50%; margin: 5% auto 0; padding: 5px;" id = "jumpAheadBtn" title="Jump Ahead Button">
+						Jump Ahead
+					</button>`
 				);
 			}
 		});
 
 		return false;
 	});
+
+	$(courseCardContainer).on(
+		"click",
+		"#jumpAheadBtn",
+		async (event: JQuery.ClickEvent) => {
+			event.preventDefault();
+
+			const nextWeekDate = new Date();
+			nextWeekDate.setDate(nextWeekDate.getDate() + 7);
+
+			const todos = await getUserUpcomingAssignments();
+			const nextWeekTodos = getAllCurrentWeeksAssignments(
+				todos || [],
+				nextWeekDate
+			);
+
+			if (nextWeekTodos && nextWeekTodos.length) {
+				// Clear container
+				$(courseCardContainer).empty();
+
+				// Generate next week's date range for header
+				const firstDayOfNextWeek = new Date(nextWeekDate);
+				firstDayOfNextWeek.setDate(
+					nextWeekDate.getDate() - nextWeekDate.getDay()
+				);
+				const lastDayOfNextWeek = new Date(firstDayOfNextWeek);
+				lastDayOfNextWeek.setDate(firstDayOfNextWeek.getDate() + 6);
+
+				const options: Intl.DateTimeFormatOptions = {
+					month: "2-digit",
+					day: "2-digit"
+				};
+				const firstDayStr = firstDayOfNextWeek.toLocaleDateString(
+					undefined,
+					options
+				);
+				const lastDayStr = lastDayOfNextWeek.toLocaleDateString(
+					undefined,
+					options
+				);
+
+				const nextWeekHTML = `
+				<div style="margin: 3% 0 3% 0; text-align: center;">
+					<h2 style="font-weight: bold;">Week of ${firstDayStr} - ${lastDayStr} ${nextWeekDate.getFullYear()}</h2>
+				</div>
+				<table style="
+					width: 100%;
+					border: 2px solid black;
+					border-collapse: collapse;
+					table-layout: fixed;
+					font-family: Arial, sans-serif;
+					margin-left: 2%;
+				">
+					<thead>
+						<tr style="background-color: #f2f2f2;">
+							${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+								.map((dayName, i) => {
+									const dateNum = new Date(firstDayOfNextWeek);
+									dateNum.setDate(firstDayOfNextWeek.getDate() + i);
+									return `
+										<th style="border: 1px solid black; padding: 10px; width: 14.28%;" id="${dayName.toLowerCase()}WeekHeader">
+											<h3 style="margin: 0;">${dayName}</h3>
+											<p style="margin: 0;">${dateNum.getMonth() + 1}/${dateNum.getDate()}</p>
+										</th>
+									`;
+								})
+								.join("")}
+						</tr>
+					</thead>
+					<tbody style="text-align: center;">
+						<tr>
+							${["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+								.map(
+									dayName =>
+										`<td style="border: 1px solid black; padding: 10px; vertical-align: top;" id="${dayName}Block"></td>`
+								)
+								.join("")}
+						</tr>
+					</tbody>
+				</table>
+			`;
+
+				$(courseCardContainer).append(nextWeekHTML);
+
+				let numAssignments = 0;
+				let numQuizzes = 0;
+				let numDiscussions = 0;
+
+				for (const todo of nextWeekTodos) {
+					const block = $(BLOCK);
+					const courseName = await getUserCourse(
+						todo.assignment?.course_id || 0
+					);
+
+					block.find("h4").text(todo.assignment?.name || "N/A");
+					block.find("p:nth-child(2)").text(courseName);
+					block
+						.find("p:nth-child(3)")
+						.text(
+							`Due Date: ${new Date(todo.assignment?.due_at || "").toLocaleDateString()}`
+						);
+
+					block.find("button").on("click", () => {
+						window.open(todo.assignment?.html_url, "_blank");
+					});
+
+					const dayId = getWeekday(todo.assignment?.due_at).toLowerCase();
+					$(`#${dayId}Block`).append(block);
+
+					numAssignments += todo.assignment ? 1 : 0;
+				}
+
+				// Optionally update stats
+				$(`#numAssignments`).html(
+					`You have <strong>${numAssignments}</strong> assignment(s) due next week.`
+				);
+				$(`#numQuizzes`).html(
+					`You have <strong>${numQuizzes}</strong> quiz(zes) due next week.`
+				);
+				$(`#numDiscussions`).html(
+					`You have <strong>${numDiscussions}</strong> discussion post(s) due next week.`
+				);
+			} else {
+				$(courseCardContainer).html(
+					`<h2 style="text-align: center; margin-top: 10%;">You're all caught up for next week too! 🎉</h2>`
+				);
+			}
+		}
+	);
 }
