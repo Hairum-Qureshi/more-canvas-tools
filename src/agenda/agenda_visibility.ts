@@ -85,15 +85,23 @@ function getWeekDateRange() {
 		day: "2-digit"
 	};
 
-	const firstday = firstDate.toLocaleDateString(undefined, options);
-	const lastday = lastDate.toLocaleDateString(undefined, options);
+	const firstDay = firstDate.toLocaleDateString(undefined, options);
+	const lastDay = lastDate.toLocaleDateString(undefined, options);
 
-	return `${firstday} - ${lastday} ${curr.getFullYear()}`;
+	return {
+		firstDay,
+		lastDay,
+		dateRange: `${firstDay} - ${lastDay} ${curr.getFullYear()}`
+	};
 }
 
-export const WEEK = `
+const { firstDay, lastDay } = getWeekDateRange();
+const month = firstDay.split("/")[0];
+const day = firstDay.split("/")[1];
+
+const WEEK = `
 	<div style="margin: 3% 0 3% 0; text-align: center;">
-		<h2 style="font-weight: bold;">Week of ${getWeekDateRange()}</h2>
+		<h2 style="font-weight: bold;">Week of ${getWeekDateRange().dateRange}</h2>
 	</div>
 	<table style="
 		width: 100%;
@@ -107,24 +115,31 @@ export const WEEK = `
 			<tr style="background-color: #f2f2f2;">
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Sunday</h3>
+					<p style="margin: 0;">${firstDay}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Monday</h3>
+					<p style="margin: 0;">${month}/${Number(day) + 1}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Tuesday</h3>
+					<p style="margin: 0;">${month}/${Number(day) + 2}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Wednesday</h3>
+					<p style="margin: 0;">${month}/${Number(day) + 3}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Thursday</h3>
+					<p style="margin: 0;">${month}/${Number(day) + 4}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Friday</h3>
+					<p style="margin: 0;">${month}/${Number(day) + 5}</p>
 				</th>
 				<th style="border: 1px solid black; padding: 10px; width: 14.28%;">
 					<h3 style="margin: 0;">Saturday</h3>
+					<p style="margin: 0;">${lastDay}</p>
 				</th>
 			</tr>
 		</thead>
