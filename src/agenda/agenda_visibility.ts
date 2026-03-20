@@ -355,7 +355,7 @@ export function injectShowAgendaButton(
 					block.on("dblclick", () => {
 						if (
 							confirm(
-								`Have you completed "${todo.assignment?.name}" for ${courseName}? Click "OK" to remove it from your agenda.`
+								`Have you completed "${todo.assignment?.name}" for ${courseName}? If so, click "OK" to remove it from your agenda. Otherwise, click "Cancel" to keep it on your agenda.`
 							)
 						) {
 							if (todo.assignment && todo.assignment.id) {
